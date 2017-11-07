@@ -16,3 +16,7 @@ VSC TERM: heroku rename itrmc-todo-api
 VSC TERM: git push heroku master
 Chrome: https://itrmc-todo-api.herokuapp.com
 OR VSC TERM: heroku open
+    git status
+    git diff
+    git commit
+    git push heroku
