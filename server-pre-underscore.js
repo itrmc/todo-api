@@ -20,9 +20,14 @@ app.get('/todos', function (req, res) {
 
 //GET /todos/:id
 app.get('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
-    var todoID = parseInt(req.params.id);
-
-    var response = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
+    var todoID = req.params.id;
+    var response = null;
+    for (var i = 0; i < todos.length; i++) {
+        if (todos[i].id == todoID) {
+            response = todos[i];
+            break;
+        } //use of break prevents unnecessary execution of stuff
+    }
     if (response) {
         res.json(response);
     } else {
@@ -30,37 +35,16 @@ app.get('/todos/:id', function (req, res) { //:id is an express notation. expres
             .status(404)
             .send();
     }
+    //
     // res.send('Asking for todo with ID of '+req.params.id); //params is an express
-    
+    // construct
 });
 
 
 //POST /todos
 app.post('/todos', function (req,res){
-    try { var body = req.body }
-    catch (e) {
-        return res.status(400).send(e); //400 means bad data was provided
-    }
-
+    var body = req.body;
 //    console.log('description: '+body.description);
-
-
-// eliminate malformed body
-/* 
-try {JSON.parse(body) }
-catch (e) {
-    return res.status(400).send(e); //400 means bad data was provided
-    }
-*/
-    // eliminate unexpected objects or elements
-    body = _.pick(body, 'description','completed');
-    
-// eliminate unexpected data types
-    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ) {
-        return res.status(400).send(); //400 means bad data was provided
-    }
-
-    body.description = body.description.trim();
     body.id = todoNextID++;
     todos.push(body);
     res.json(body);

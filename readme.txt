@@ -33,4 +33,9 @@ VSC TERM
 Postman
     added environments
     added key apiUrl
-    
+VSC TERM
+    npm install body-parser@1.13.3 --save //this is for parsing body elements in post operations
+PACKAGE.JSON
+    "underscore": "^1.8.3" added to dependencies
+VSC TERM
+    NPM INSTALL
