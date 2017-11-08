@@ -20,3 +20,17 @@ OR VSC TERM: heroku open
     git diff
     git commit
     git push heroku
+Chrome
+    github.com
+    new repository
+        todo-api
+        udemy node course rest api in express
+        copy code from browser to push existing library
+        paste into console
+VSC TERM
+    git remote add origin https://github.com/itrmc/todo-api.git
+    git push -u origin master
+Postman
+    added environments
+    added key apiUrl
+    

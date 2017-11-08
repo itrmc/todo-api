@@ -1,22 +1,12 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
 var app = express();
 var PORT = process.env.PORT || 3000; //heroku uses the env
-var todos = [
-    {
-        id: 1,
-        description: 'Meet Justin for lunch',
-        completed: false
-    }, {
-        id: 2,
-        description: 'Go to market',
-        completed: false
-    }, {
-        id: 3,
-        description: 'Feed Isa',
-        completed: true
-    }
+var todos = [];
+var todoNextID = 1;
 
-];
+app.use(bodyParser.json()); //now anytime a request comes in we can parse it
 
 app.get('/', function (req, res) {
     res.send('Todo API root');
@@ -48,6 +38,17 @@ app.get('/todos/:id', function (req, res) { //:id is an express notation. expres
     // res.send('Asking for todo with ID of '+req.params.id); //params is an express
     // construct
 });
+
+
+//POST /todos
+app.post('/todos', function (req,res){
+    var body = req.body;
+    console.log('description: '+body.description);
+
+    res.json(body);
+
+});
+
 
 app.listen(PORT, function () {
     console.log('Express listening on PORT' + PORT);
