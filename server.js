@@ -44,6 +44,10 @@ app.get('/todos/:id', function (req, res) { //:id is an express notation. expres
 app.post('/todos', function (req,res){
     var body = req.body;
     console.log('description: '+body.description);
+    body.id = todoNextID++;
+    todos.push(body);
+    
+
 
     res.json(body);
 
