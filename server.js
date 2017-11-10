@@ -9,29 +9,30 @@ var todoNextID = 1;
 
 app.use(bodyParser.json()); //now anytime a request comes in we can parse it
 
-// Notice the new error argument ERROR handler for uncaught stuff
-app.use(function (error, req, res, next) {
-    // Check if the error is a SyntaxError
-    if (error instanceof SyntaxError) {
-      // Send back some custom error code and message
-    } else {
-      // No error? Continue on.
-      next();
-    }
-  });
-
 app.get('/', function (req, res) {
     res.send('Todo API root');
 });
 
 //GET /todos
 app.get('/todos', function (req, res) {
-    res.json(todos);
+    var queryParams = req.query;
+    var filteredTodos = todos;
+    if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'true') {
+        filteredTodos = _.where(filteredTodos, {completed: true});
+    } else if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'false') {
+        filteredTodos = _.where(filteredTodos, {completed: false});
+    } else if (queryParams.hasOwnProperty('completed')) {
+        res
+            .status(400)
+            .send();
+    }
+
+    res.json(filteredTodos);
 });
 
 //GET /todos/:id
 app.get('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
-    var todoID = parseInt(req.params.id);
+    var todoID = parseInt(req.params.id, 10);
 
     var response = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
     if (response) {
@@ -62,39 +63,51 @@ app.delete('/todos/:id', function (req, res) { //:id is an express notation. exp
 
 });
 
-app.put('/todos:id', function(){
-    var body = _.pick(req.body, 'description', 'completed'); //this line filters only the useful items from the body
+app.patch('/todos/:id', function (req, res) {
+    console.log("body:\n" + JSON.stringify(req.body));
+    var body = _.pick(req.body, 'description', 'completed');
+    console.log("body:\n" + JSON.stringify(body));
     var validAttributes = {};
 
-    var todoID = parseInt(req.params.id);  
+    var todoID = parseInt(req.params.id, 10);
     var matchedTodo = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
 
     if (!matchedTodo) {
-        return res.status(404).send();
+        return res
+            .status(404)
+            .send("Searching for ID " + todoID);
     }
-    
-    if (body.hasOwnProperty('completed') && _isBoolean(body.completed) ) {
+
+    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
         // all things are as expected
         validAttributes.completed = body.completed;
     } else if (body.hasOwnProperty('completed')) {
         // things went wrong
-        return res.status(400).send();
+        return res
+            .status(400)
+            .send();
     }
 
-    if (body.hasOwnProperty('description') && _isString(body.description) && body.description.length > 0 ) {
+    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.length > 0) {
         // all things are as expected
         validAttributes.description = body.description;
     } else if (body.hasOwnProperty('description')) {
         // things went wrong
-        return res.status(400).send();
+        return res
+            .status(400)
+            .send();
     }
 
-    //things went right - we need to update the correct item
-    //underscore library extend helps with this.
-
-    _.extend(matchedTodo, validAttributes);  // passed by reference so extend does the heavy lifting
-    
-} );
+    // things went right - we need to update the correct item underscore library
+    // extend helps with this.
+    console.log("body:\n" + JSON.stringify(body));
+    console.log(_.isString(body.description));
+    console.log(body.hasOwnProperty('description'));
+    console.log(validAttributes);
+    console.log(matchedTodo);
+    matchedTodo = _.extend(matchedTodo, validAttributes); // passed by reference so extend does the heavy lifting
+    res.json(matchedTodo);
+});
 
 //POST /todos
 app.post('/todos', function (req, res) {
