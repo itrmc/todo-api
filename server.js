@@ -9,6 +9,17 @@ var todoNextID = 1;
 
 app.use(bodyParser.json()); //now anytime a request comes in we can parse it
 
+// Notice the new error argument ERROR handler for uncaught stuff
+app.use(function (error, req, res, next) {
+    // Check if the error is a SyntaxError
+    if (error instanceof SyntaxError) {
+      // Send back some custom error code and message
+    } else {
+      // No error? Continue on.
+      next();
+    }
+  });
+
 app.get('/', function (req, res) {
     res.send('Todo API root');
 });
@@ -51,25 +62,43 @@ app.delete('/todos/:id', function (req, res) { //:id is an express notation. exp
 
 });
 
-//POST /todos
-app.post('/todos', function (req, res) {
-    try {
-        var body = req.body
-    } catch (e) {
-        return res
-            .status(400)
-            .send(e); //400 means bad data was provided
+app.put('/todos:id', function(){
+    var body = _.pick(req.body, 'description', 'completed'); //this line filters only the useful items from the body
+    var validAttributes = {};
+
+    var todoID = parseInt(req.params.id);  
+    var matchedTodo = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
+
+    if (!matchedTodo) {
+        return res.status(404).send();
+    }
+    
+    if (body.hasOwnProperty('completed') && _isBoolean(body.completed) ) {
+        // all things are as expected
+        validAttributes.completed = body.completed;
+    } else if (body.hasOwnProperty('completed')) {
+        // things went wrong
+        return res.status(400).send();
     }
 
-    //    console.log('description: '+body.description); eliminate malformed body
-    /*
-try {JSON.parse(body) }
-catch (e) {
-    return res.status(400).send(e); //400 means bad data was provided
+    if (body.hasOwnProperty('description') && _isString(body.description) && body.description.length > 0 ) {
+        // all things are as expected
+        validAttributes.description = body.description;
+    } else if (body.hasOwnProperty('description')) {
+        // things went wrong
+        return res.status(400).send();
     }
-*/
-    // eliminate unexpected objects or elements
-    body = _.pick(body, 'description', 'completed');
+
+    //things went right - we need to update the correct item
+    //underscore library extend helps with this.
+
+    _.extend(matchedTodo, validAttributes);  // passed by reference so extend does the heavy lifting
+    
+} );
+
+//POST /todos
+app.post('/todos', function (req, res) {
+    var body = _.pick(req.body, 'description', 'completed');
 
     // eliminate unexpected data types
     if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
