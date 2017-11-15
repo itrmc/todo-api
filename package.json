@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.13.3",
-    "express": "^4.13.3",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "sequelize": "^4.22.6",
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master",
     "underscore": "^1.8.3"
   }
 }

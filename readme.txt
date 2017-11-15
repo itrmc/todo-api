@@ -39,3 +39,7 @@ PACKAGE.JSON
     "underscore": "^1.8.3" added to dependencies
 VSC TERM
     NPM INSTALL
+
+//Now, we add database operations
+npm install sequelize --save
+npm install sqlite3 --save
