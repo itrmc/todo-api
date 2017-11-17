@@ -45,36 +45,33 @@ app.get('/todos', function (req, res) {
 app.get('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
     var todoID = parseInt(req.params.id, 10);
 
-    var response = _.findWhere(todos, {
-        id: todoID
-    }); //underscore library lets you maintain less code
-    if (response) {
-        res.json(response);
-    } else {
-        res
-            .status(404)
-            .send();
-    }
-    // res.send('Asking for todo with ID of '+req.params.id); //params is an express
 
+    db.todo.findById(todoID).then(function (todo) { //create takes a success and an error function argument
+        if (!!todo) { //special converter to boolean !!
+            res.json(todo.toJSON());
+        } else {
+            res.status(404).send();
+        }
+    }, function (e) {
+        res.status(500).send();
+
+    })
 });
 
 // DELETE /todos/:id GET /todos/:id
 app.delete('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
     var todoID = parseInt(req.params.id);
 
-    var response = _.findWhere(todos, {
-        id: todoID
-    }); //underscore library lets you maintain less code
-    if (response) {
-        todos = _.without(todos, response)
-        res.json(response);
-    } else {
-        res
-            .status(404)
-            .send();
-    }
-    // res.send('Asking for todo with ID of '+req.params.id); //params is an express
+    db.todo.findByID(todoID).then(function (todo) { //create takes a success and an error function argument
+        if (!!todo) { //special converter to boolean !!
+            res.json(todo.toJSON());
+        } else {
+            res.status(404).send();
+        }
+    }, function (e) {
+        res.status(500).send();
+
+    })
 
 });
 
@@ -130,20 +127,6 @@ app.patch('/todos/:id', function (req, res) {
 app.post('/todos', function (req, res) {
     var body = _.pick(req.body, 'description', 'completed');
 
-    // eliminate unexpected data types
-    /*     if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-            return res
-                .status(400)
-                .send(); //400 means bad data was provided
-        }
-
-        body.description = body
-            .description
-            .trim();
-        body.id = todoNextID++;
-        todos.push(body);
-        res.json(body);
-     */
 
     //call create on db.todo
     // if successful, respond with 200 and value of todo object /toJSON
