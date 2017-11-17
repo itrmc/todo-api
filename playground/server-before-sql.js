@@ -1,7 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
-var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000; //heroku uses the env
@@ -19,13 +18,9 @@ app.get('/todos', function (req, res) {
     var queryParams = req.query;
     var filteredTodos = todos;
     if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'true') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: true
-        });
+        filteredTodos = _.where(filteredTodos, {completed: true});
     } else if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'false') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: false
-        });
+        filteredTodos = _.where(filteredTodos, {completed: false});
     } else if (queryParams.hasOwnProperty('completed')) {
         res
             .status(400)
@@ -45,9 +40,7 @@ app.get('/todos', function (req, res) {
 app.get('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
     var todoID = parseInt(req.params.id, 10);
 
-    var response = _.findWhere(todos, {
-        id: todoID
-    }); //underscore library lets you maintain less code
+    var response = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
     if (response) {
         res.json(response);
     } else {
@@ -63,9 +56,7 @@ app.get('/todos/:id', function (req, res) { //:id is an express notation. expres
 app.delete('/todos/:id', function (req, res) { //:id is an express notation. express knows to match that element and call it id
     var todoID = parseInt(req.params.id);
 
-    var response = _.findWhere(todos, {
-        id: todoID
-    }); //underscore library lets you maintain less code
+    var response = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
     if (response) {
         todos = _.without(todos, response)
         res.json(response);
@@ -85,9 +76,7 @@ app.patch('/todos/:id', function (req, res) {
     var validAttributes = {};
 
     var todoID = parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {
-        id: todoID
-    }); //underscore library lets you maintain less code
+    var matchedTodo = _.findWhere(todos, {id: todoID}); //underscore library lets you maintain less code
 
     if (!matchedTodo) {
         return res
@@ -131,38 +120,21 @@ app.post('/todos', function (req, res) {
     var body = _.pick(req.body, 'description', 'completed');
 
     // eliminate unexpected data types
-    /*     if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-            return res
-                .status(400)
-                .send(); //400 means bad data was provided
-        }
+    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+        return res
+            .status(400)
+            .send(); //400 means bad data was provided
+    }
 
-        body.description = body
-            .description
-            .trim();
-        body.id = todoNextID++;
-        todos.push(body);
-        res.json(body);
-     */
+    body.description = body
+        .description
+        .trim();
+    body.id = todoNextID++;
+    todos.push(body);
+    res.json(body);
 
-    //call create on db.todo
-    // if successful, respond with 200 and value of todo object /toJSON
-    // if fails, return error object res.status(400).json(e)
-    db.todo.create(body).then(function (todo) { //create takes a success and an error function argument
-        res.json(todo.toJSON());
-    }, function (e) {
-        res.status(400).json(e);
-
-    })
 });
 
-db
-    .sequelize
-    .sync()
-    .then(function () {
-
-        app
-            .listen(PORT, function () {
-                console.log('Express listening on PORT' + PORT);
-            });
-    });
+app.listen(PORT, function () {
+    console.log('Express listening on PORT' + PORT);
+});
