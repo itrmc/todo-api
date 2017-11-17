@@ -50,3 +50,10 @@ create new file ".keep" in the data folder. this helps with git and some OSes
 create new file in root of project "db.js"
 
 create new models folder
+
+now, we're about to make heroku ready for the database stuff
+
+heroku addons:create heroku-postgresql:hobby-dev
+npm install pg@4.4.1 --save
+npm install pg-hstore@2.3.2 --save
+
