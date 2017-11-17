@@ -43,3 +43,10 @@ VSC TERM
 //Now, we add database operations
 npm install sequelize --save
 npm install sqlite3 --save
+
+create data folder
+create new file ".keep" in the data folder. this helps with git and some OSes
+
+create new file in root of project "db.js"
+
+create new models folder

@@ -16,29 +16,33 @@ app.get('/', function (req, res) {
 
 //GET /todos
 app.get('/todos', function (req, res) {
-    var queryParams = req.query;
-    var filteredTodos = todos;
-    if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'true') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: true
-        });
-    } else if (queryParams.hasOwnProperty('completed') && queryParams.completed.toLowerCase() === 'false') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: false
-        });
-    } else if (queryParams.hasOwnProperty('completed')) {
-        res
-            .status(400)
-            .send();
-    }
+    var query = req.query;
 
-    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-        filteredTodos = _.filter(filteredTodos, function (item) {
-            return (item.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1)
-        });
-    }
+    var where = {};
 
-    res.json(filteredTodos);
+    if (query.hasOwnProperty('completed') && query.completed.toLowerCase() === 'true') {
+        where.completed = true
+        }
+        else if (query.hasOwnProperty('completed') && query.completed.toLowerCase() === 'false') {
+            where.completed = false
+        };
+    
+
+    if (query.hasOwnProperty('q') && query.q.length > 0) {
+        where.description = {
+            [db.Sequelize.Op.like] : '%'+query.q.trim()+'%'
+            }            
+        };
+
+    db.todo.findAll({where : where}).then(function (todos) { //create takes a success and an error function argument
+        if (todos) { //special converter to boolean !!
+            res.json(todos);
+        } 
+    }, function (e) {
+        res.status(500).send();
+
+    });
+
 });
 
 //GET /todos/:id

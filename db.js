@@ -11,5 +11,6 @@ db.todo = sequelize.import (__dirname+"/models/todo.js"); //lets you load in def
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+
 module.exports = db; //setting this to an object lets you return multiple things
 
