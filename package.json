@@ -14,7 +14,6 @@
     "pg": "^4.4.1",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.22.6",
-    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
